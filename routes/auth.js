@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 // REGISTER ROUTE
 router.post("/register", async (req, res) => {
-    const newUser = new user({
+    const newUser = new User({
         username: req.body.username,
         email: req.body.email,
         password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString(),
@@ -13,7 +13,12 @@ router.post("/register", async (req, res) => {
 
     try {
         const user = await newUser.save();
-        res.status(200).json(user);
+        const {password, ...info} = user._doc;
+        res.status(200).json({
+            success: true,
+            message: "Registration Successful",
+            data: {info}
+        });
     } catch (error) {
         res.status(500).json(error);
     }
@@ -43,6 +48,7 @@ router.post("/login", async (req, res) => {
         );
 
         const {password, ...info} = user._doc;
+
         res.status(200).json({
             success: true,
             message: "Login Successful",
